@@ -55,13 +55,8 @@
     <div class="faces" id="faces"></div>
     <div class="card" id="card"></div>
   </div>
-  <script src="photos1.js"></script>
-  <script src="photos2.js"></script>
-  <script src="photos3.js"></script>
-  <script src="list1.js"></script>
-  <script src="list2.js"></script>
-  <script src="list3.js"></script>
-  <script src="list4.js"></script>
+  <script src="photos.js"></script>
+  <script src="list.js"></script>
   <script>
     const PHOTOS = window.PHOTOS || [];
     const LIST = window.LIST || [];
@@ -78,11 +73,8 @@
       return ((a.artist || a.title || a.raw || "") + " " + (a.title || "")).toLowerCase();
     }
     function hay(a) {
-      return [a.artist, a.title, a.label, a.catalog, a.year, a.format, a.speed, a.notes, a.raw, a.linerAuthor,
-        ...(a.genre || []), ...(a.producers || []), ...(a.engineers || []), ...(a.studios || []),
-        ...((a.tracks || []).map(t => t.title + " " + (t.writers || []).join(" "))),
-        ...((a.personnel || []).map(p => (p.name || "") + " " + ((p.instruments || []).join(" "))))
-      ].filter(Boolean).join(" ").toLowerCase();
+      return [a.artist, a.title, a.label, a.catalog, a.year, a.format, a.speed, a.notes, a.raw,
+        ...(a.genre || []), ...((a.tracks || []).map(t => t.title || ""))].filter(Boolean).join(" ").toLowerCase();
     }
     function esc(s) {
       return String(s || "").replace(/[&<>"]/g, c => ({ "&": "&", "<": "<", ">": ">", '"': """ }[c]));
@@ -112,56 +104,36 @@
     function draw() {
       drawChips();
       const rows = shown();
-      const jackets = rows.filter(a => a.front).length;
-      count.textContent = rows.length + " in the crate · " + jackets + " with jackets";
+      count.textContent = rows.length + " in the crate · " + rows.filter(a => a.front).length + " with jackets";
       bin.innerHTML = "";
       rows.forEach(a => {
         const el = document.createElement("article");
         const art = a.front
           ? `<img class="art" src="${esc(a.front)}" alt="" loading="lazy">`
           : `<div class="blank">${esc((a.title || a.raw || "?").slice(0, 80))}</div>`;
-        el.innerHTML = `${art}<h2>${esc(a.artist || a.title || "Untitled")}</h2><p class="meta">${esc([a.title !== a.artist ? a.title : "", a.year, a.label].filter(Boolean).join(" · "))}</p>`;
+        el.innerHTML = `${art}<h2>${esc(a.artist || a.title || "Untitled")}</h2><p class="meta">${esc([a.artist && a.title !== a.artist ? a.title : "", a.year, a.label].filter(Boolean).join(" · "))}</p>`;
         el.onclick = () => open(a);
         bin.appendChild(el);
       });
     }
     function row(dt, dd) {
-      if (!dd) return "";
+      if (!dd || (Array.isArray(dd) && !dd.length)) return "";
       return `<dt>${esc(dt)}</dt><dd>${esc(Array.isArray(dd) ? dd.join(", ") : dd)}</dd>`;
     }
     function open(a) {
       const imgs = [a.front, a.back, a.inner].filter(Boolean);
-      faces.innerHTML = imgs.map(src => `<img src="${esc(src)}" alt="">`).join("") || "";
-      const tracks = (a.tracks || []).map(t => `<li>${esc([t.side, t.title, (t.writers || []).join(" · "), t.duration].filter(Boolean).join(" — "))}</li>`).join("");
-      const people = (a.personnel || []).map(p => `<li>${esc(p.name || "")}${p.instruments ? " — " + esc((p.instruments || []).join(", ")) : ""}${p.tracks ? " (" + esc(p.tracks) + ")" : ""}</li>`).join("");
-      const sp = a.spotify || ("https://open.spotify.com/search/" + queryFor(a));
-      const ap = a.apple || ("https://music.apple.com/us/search?term=" + queryFor(a));
+      faces.innerHTML = imgs.map(src => `<img src="${esc(src)}" alt="">`).join("");
+      const tracks = (a.tracks || []).map(t => `<li>${esc([t.side, t.title].filter(Boolean).join(" — "))}</li>`).join("");
+      const sp = "https://open.spotify.com/search/" + queryFor(a);
+      const ap = "https://music.apple.com/us/search?term=" + queryFor(a);
       card.innerHTML = `<h2>${esc(a.title || "")}</h2><p class="by">${esc(a.artist || "")}</p>
-        <dl>
-          ${row("Issued", a.year)}
-          ${row("Label", [a.label, a.catalog].filter(Boolean).join(" · "))}
-          ${row("Format", a.format)}
-          ${row("Speed", a.speed)}
-          ${row("Genre", a.genre)}
-          ${row("Recorded", a.studioLive || (a.studios || []).join(" · "))}
-          ${row("Producers", a.producers)}
-          ${row("Engineers", a.engineers)}
-          ${row("Cover", [...(a.illustrators || []), ...(a.photographers || [])])}
-          ${row("Liner notes by", a.linerAuthor)}
-        </dl>
+        <dl>${row("Issued", a.year)}${row("Label", [a.label, a.catalog].filter(Boolean).join(" · "))}${row("Speed", a.speed)}${row("Genre", a.genre)}</dl>
         ${tracks ? "<h3>Sides</h3><ol class='tracks'>" + tracks + "</ol>" : ""}
-        ${people ? "<h3>Who played</h3><ul class='tracks'>" + people + "</ul>" : ""}
         ${a.notes || a.raw ? "<h3>From the list</h3><div class='notes'>" + esc(a.notes || a.raw) + "</div>" : ""}
-        <div class="listen">
-          <a class="sp" href="${esc(sp)}" target="_blank" rel="noopener">Listen on Spotify</a>
-          <a class="ap" href="${esc(ap)}" target="_blank" rel="noopener">Listen on Apple Music</a>
-        </div>`;
-      stage.hidden = false;
-      document.body.style.overflow = "hidden";
-      stage.scrollTop = 0;
+        <div class="listen"><a class="sp" href="${sp}" target="_blank" rel="noopener">Listen on Spotify</a><a class="ap" href="${ap}" target="_blank" rel="noopener">Listen on Apple Music</a></div>`;
+      stage.hidden = false; document.body.style.overflow = "hidden"; stage.scrollTop = 0;
     }
     document.getElementById("close").onclick = () => { stage.hidden = true; document.body.style.overflow = ""; };
-    stage.addEventListener("click", e => { if (e.target === stage) document.getElementById("close").click(); });
     q.addEventListener("input", draw);
     draw();
   </script>
