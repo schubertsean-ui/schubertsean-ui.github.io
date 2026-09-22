@@ -17,7 +17,7 @@
     @media (min-width: 720px) { .crate { grid-template-columns: 1fr 1fr 1fr 1fr; } }
     article { background: none; border: 0; color: inherit; text-align: left; padding: 0; width: 100%; cursor: pointer; font: inherit; }
     .art { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #1b140f; box-shadow: 6px 12px 22px #0007; }
-    article h2 { margin: .4rem 0 0; font-size: .95rem; font-weight: 500; font-style: italic; }
+    article h2 { margin: .4rem 0 0; font-size: .92rem; font-weight: 500; font-style: italic; }
     article .meta { margin: .1rem 0 0; font-family: "IBM Plex Mono", monospace; font-size: .5rem; color: var(--muted); }
     .stage { position: fixed; inset: 0; background: #0a0705f5; overflow: auto; padding: .8rem; z-index: 20; }
     .stage[hidden] { display: none; }
@@ -41,9 +41,7 @@
     <div class="faces" id="faces"></div>
     <div class="card" id="card"></div>
   </div>
-  <script src="g1.js"></script>
-  <script src="g2.js"></script>
-  <script src="g3.js"></script>
+  <script src="g1.js"></script><script src="g2.js"></script><script src="g3.js"></script><script src="g4.js"></script><script src="g5.js"></script><script src="g6.js"></script><script src="g7.js"></script><script src="g8.js"></script><script src="g9.js"></script>
   <script>
     const ALL = (window.PHOTOS || []).map(a => ({
       title: a.t || a.title || "Photographed jacket",
@@ -65,8 +63,7 @@
     function qf(a) { return encodeURIComponent([a.artist, a.title].filter(Boolean).join(" ")); }
     function draw() {
       const t = q.value.trim().toLowerCase();
-      const rows = ALL.filter(a => !t || t.split(/\s+/).every(w => hay(a).includes(w)))
-        .sort((x, y) => keyOf(x).localeCompare(keyOf(y)));
+      const rows = ALL.filter(a => !t || t.split(/\s+/).every(w => hay(a).includes(w))).sort((x,y)=>keyOf(x).localeCompare(keyOf(y)));
       count.textContent = rows.length + " jackets in the crate";
       bin.innerHTML = "";
       rows.forEach(a => {
