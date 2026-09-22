@@ -6,74 +6,164 @@
   <title>Scroll or Search until something finds you.</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" />
   <style>
-    :root { --paper:#eadcc6; --gold:#c4a574; --muted:#9a8b76; }
+    :root { --paper:#eadcc6; --gold:#c4a574; --muted:#9a8b76; --ink:#1a1410; }
     * { box-sizing: border-box; }
     html, body { margin: 0; background: #120c09; color: var(--paper); font-family: "Cormorant Garamond", Georgia, serif; }
-    header { padding: 1.2rem 1.1rem .6rem; }
-    .eyebrow { margin: 0 0 .35rem; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .24em; text-transform: uppercase; color: var(--gold); }
-    .lede { margin: 0; font-weight: 500; font-style: italic; font-size: 1.15rem; line-height: 1.25; color: var(--paper); }
-    .crate { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 12px; padding: 16px 14px 40px; background: linear-gradient(#3a2a1c,#1a120c); }
-    @media (min-width: 720px) { .crate { grid-template-columns: 1fr 1fr 1fr; padding: 20px 24px 48px; } }
-    article img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; box-shadow: 8px 16px 28px #0008; background: #111; }
-    article h2 { margin: .45rem 0 0; font-size: 1rem; font-weight: 500; font-style: italic; }
-    article p { margin: .1rem 0 .4rem; font-family: "IBM Plex Mono", monospace; font-size: .52rem; color: var(--muted); }
-    .listen { display: flex; flex-direction: column; gap: .28rem; }
-    .listen a { display: block; text-align: center; text-decoration: none; font-family: "IBM Plex Mono", monospace; font-size: .52rem; letter-spacing: .08em; text-transform: uppercase; padding: .5rem .3rem; }
+    header { padding: 1.1rem 1rem .7rem; position: sticky; top: 0; z-index: 5; background: #120c09f2; }
+    .eyebrow { margin: 0 0 .3rem; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+    .lede { margin: 0 0 .7rem; font-weight: 500; font-style: italic; font-size: 1.12rem; }
+    #q { width: 100%; background: #0003; border: 1px solid #c4a57444; color: var(--paper); padding: .65rem .75rem; font: 400 1rem "Cormorant Garamond", serif; }
+    .chips { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .55rem; }
+    .chips button { font-family: "IBM Plex Mono", monospace; font-size: .55rem; letter-spacing: .08em; text-transform: uppercase; background: transparent; color: var(--muted); border: 1px solid #c4a57433; padding: .35rem .5rem; }
+    .chips button.on { color: var(--paper); border-color: var(--gold); }
+    .crate { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 10px; padding: 12px 12px 80px; background: linear-gradient(#3a2a1c,#1a120c); }
+    @media (min-width: 720px) { .crate { grid-template-columns: 1fr 1fr 1fr 1fr; padding: 16px 20px 80px; } }
+    article { background: none; border: 0; color: inherit; text-align: left; padding: 0; width: 100%; cursor: pointer; font: inherit; }
+    .art { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #1b140f; box-shadow: 6px 12px 22px #0007; }
+    .blank { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; padding: .7rem; text-align: center; background: #cbb896; color: #3a2a1c; font-style: italic; font-size: .92rem; line-height: 1.2; box-shadow: 6px 12px 22px #0007; }
+    article h2 { margin: .4rem 0 0; font-size: .95rem; font-weight: 500; font-style: italic; }
+    article .meta { margin: .1rem 0 0; font-family: "IBM Plex Mono", monospace; font-size: .5rem; color: var(--muted); }
+    .stage { position: fixed; inset: 0; background: #0a0705f5; overflow: auto; padding: .8rem; z-index: 20; }
+    .stage[hidden] { display: none; }
+    .ghost { font-family: "IBM Plex Mono", monospace; font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; background: none; color: var(--gold); border: 1px solid #c4a57455; padding: .4rem .55rem; }
+    .faces { width: min(88vw, 440px); margin: .7rem auto 0; }
+    .faces img { width: 100%; display: block; background: #111; margin-bottom: .45rem; }
+    .card { background: #f3ead8; color: var(--ink); max-width: 520px; margin: .8rem auto 2rem; padding: 1.1rem; }
+    .card h2 { margin: 0; font-style: italic; font-weight: 500; }
+    .card .by { margin: .15rem 0 .7rem; color: #5c4a36; }
+    .card dl { display: grid; grid-template-columns: 7rem 1fr; gap: .25rem .6rem; font-size: .95rem; }
+    .card dt { font-family: "IBM Plex Mono", monospace; font-size: .55rem; letter-spacing: .08em; text-transform: uppercase; color: #7a6854; padding-top: .25rem; }
+    .card dd { margin: 0; }
+    .listen { display: flex; flex-direction: column; gap: .35rem; margin-top: .9rem; }
+    .listen a { display: block; text-align: center; text-decoration: none; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; padding: .7rem; }
     .sp { background: #1db954; color: #062; }
     .ap { background: #111; color: #fff; }
+    .tracks { padding-left: 1.1rem; margin: .3rem 0; }
+    .notes { white-space: pre-wrap; font-size: .95rem; }
   </style>
 </head>
 <body>
   <header>
-    <p class="eyebrow">Start anywhere · 5 jackets</p>
+    <p class="eyebrow" id="count">Start anywhere</p>
     <p class="lede">Scroll or Search until something finds you.</p>
+    <input id="q" type="search" placeholder="Artist, title, label, year, notes…" />
+    <div class="chips" id="chips"></div>
   </header>
-  <div class="crate">
-    <article>
-      <a href="https://lh3.googleusercontent.com/d/1GAIoCaIjX_xJE9vpT4KaT-FccAD3Uxwh=w1600"><img src="https://lh3.googleusercontent.com/d/1GAIoCaIjX_xJE9vpT4KaT-FccAD3Uxwh=w800" alt="Under Many Flags" /></a>
-      <h2>Bowmar / Noble</h2>
-      <p>Under Many Flags · 3162 · 1962</p>
-      <div class="listen">
-        <a class="sp" href="https://open.spotify.com/search/Bowmar%20Under%20Many%20Flags">Listen on Spotify</a>
-        <a class="ap" href="https://music.apple.com/us/search?term=Bowmar%20Under%20Many%20Flags">Listen on Apple Music</a>
-      </div>
-    </article>
-    <article>
-      <a href="https://lh3.googleusercontent.com/d/17PWTWlu20IMRxHc1FpdYd5XpDXJXCmyj=w1600"><img src="https://lh3.googleusercontent.com/d/17PWTWlu20IMRxHc1FpdYd5XpDXJXCmyj=w800" alt="Dances" /></a>
-      <h2>Bowmar Orchestral Library</h2>
-      <p>Dances, Part I · BOL 55 · 1965</p>
-      <div class="listen">
-        <a class="sp" href="https://open.spotify.com/search/Bowmar%20Orchestral%20Library%20Dances">Listen on Spotify</a>
-        <a class="ap" href="https://music.apple.com/us/search?term=Bowmar%20Orchestral%20Library%20Dances">Listen on Apple Music</a>
-      </div>
-    </article>
-    <article>
-      <a href="https://lh3.googleusercontent.com/d/1O51dLHCHNn7GLvqXsyI8X5NtHsS-BmNJ=w1600"><img src="https://lh3.googleusercontent.com/d/1O51dLHCHNn7GLvqXsyI8X5NtHsS-BmNJ=w800" alt="Marches" /></a>
-      <h2>Bowmar Orchestral Library</h2>
-      <p>Marches · BOL 54 · 1965</p>
-      <div class="listen">
-        <a class="sp" href="https://open.spotify.com/search/Bowmar%20Orchestral%20Library%20Marches">Listen on Spotify</a>
-        <a class="ap" href="https://music.apple.com/us/search?term=Bowmar%20Orchestral%20Library%20Marches">Listen on Apple Music</a>
-      </div>
-    </article>
-    <article>
-      <a href="https://lh3.googleusercontent.com/d/1OIoZJyy2H817Q-f0Ym94GorDW1ThR1Uf=w1600"><img src="https://lh3.googleusercontent.com/d/1OIoZJyy2H817Q-f0Ym94GorDW1ThR1Uf=w800" alt="Music USA" /></a>
-      <h2>Bowmar Orchestral Library</h2>
-      <p>Music, U.S.A. · BOL 65</p>
-      <div class="listen">
-        <a class="sp" href="https://open.spotify.com/search/Bowmar%20Music%20USA">Listen on Spotify</a>
-        <a class="ap" href="https://music.apple.com/us/search?term=Bowmar%20Music%20USA">Listen on Apple Music</a>
-      </div>
-    </article>
-    <article>
-      <a href="https://lh3.googleusercontent.com/d/13tFHMjnjiI63kmlQJT20ADV6Zq_MHgER=w1600"><img src="https://lh3.googleusercontent.com/d/13tFHMjnjiI63kmlQJT20ADV6Zq_MHgER=w800" alt="Diz n Bird" /></a>
-      <h2>Dizzy Gillespie & Charlie Parker</h2>
-      <p>Diz 'n' Bird · Roost / Roulette SK-106</p>
-      <div class="listen">
-        <a class="sp" href="https://open.spotify.com/search/Dizzy%20Gillespie%20Charlie%20Parker%20Diz%20n%20Bird">Listen on Spotify</a>
-        <a class="ap" href="https://music.apple.com/us/search?term=Dizzy%20Gillespie%20Charlie%20Parker%20Diz%20n%20Bird">Listen on Apple Music</a>
-      </div>
-    </article>
+  <div class="crate" id="bin"></div>
+  <div class="stage" id="stage" hidden>
+    <button class="ghost" id="close">Put it back</button>
+    <div class="faces" id="faces"></div>
+    <div class="card" id="card"></div>
   </div>
+  <script src="photos1.js"></script>
+  <script src="photos2.js"></script>
+  <script src="photos3.js"></script>
+  <script src="list1.js"></script>
+  <script src="list2.js"></script>
+  <script src="list3.js"></script>
+  <script src="list4.js"></script>
+  <script>
+    const PHOTOS = window.PHOTOS || [];
+    const LIST = window.LIST || [];
+    const ALL = PHOTOS.concat(LIST);
+    const bin = document.getElementById("bin");
+    const q = document.getElementById("q");
+    const chips = document.getElementById("chips");
+    const count = document.getElementById("count");
+    const stage = document.getElementById("stage");
+    const faces = document.getElementById("faces");
+    const card = document.getElementById("card");
+    let crate = "all";
+    function keyOf(a) {
+      return ((a.artist || a.title || a.raw || "") + " " + (a.title || "")).toLowerCase();
+    }
+    function hay(a) {
+      return [a.artist, a.title, a.label, a.catalog, a.year, a.format, a.speed, a.notes, a.raw, a.linerAuthor,
+        ...(a.genre || []), ...(a.producers || []), ...(a.engineers || []), ...(a.studios || []),
+        ...((a.tracks || []).map(t => t.title + " " + (t.writers || []).join(" "))),
+        ...((a.personnel || []).map(p => (p.name || "") + " " + ((p.instruments || []).join(" "))))
+      ].filter(Boolean).join(" ").toLowerCase();
+    }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"]/g, c => ({ "&": "&", "<": "<", ">": ">", '"': """ }[c]));
+    }
+    function queryFor(a) {
+      return encodeURIComponent([a.artist, a.title].filter(Boolean).join(" ") || a.raw || "");
+    }
+    function drawChips() {
+      chips.innerHTML = "";
+      [["all", "All"], ["photo", "Jackets"], ["list", "Written list"]].forEach(([id, label]) => {
+        const b = document.createElement("button");
+        b.textContent = label;
+        b.className = crate === id ? "on" : "";
+        b.onclick = () => { crate = id; draw(); };
+        chips.appendChild(b);
+      });
+    }
+    function shown() {
+      const t = q.value.trim().toLowerCase();
+      return ALL.filter(a => {
+        if (crate === "photo" && !a.front) return false;
+        if (crate === "list" && a.front) return false;
+        if (!t) return true;
+        return t.split(/\s+/).every(w => hay(a).includes(w));
+      }).sort((x, y) => keyOf(x).localeCompare(keyOf(y)));
+    }
+    function draw() {
+      drawChips();
+      const rows = shown();
+      const jackets = rows.filter(a => a.front).length;
+      count.textContent = rows.length + " in the crate · " + jackets + " with jackets";
+      bin.innerHTML = "";
+      rows.forEach(a => {
+        const el = document.createElement("article");
+        const art = a.front
+          ? `<img class="art" src="${esc(a.front)}" alt="" loading="lazy">`
+          : `<div class="blank">${esc((a.title || a.raw || "?").slice(0, 80))}</div>`;
+        el.innerHTML = `${art}<h2>${esc(a.artist || a.title || "Untitled")}</h2><p class="meta">${esc([a.title !== a.artist ? a.title : "", a.year, a.label].filter(Boolean).join(" · "))}</p>`;
+        el.onclick = () => open(a);
+        bin.appendChild(el);
+      });
+    }
+    function row(dt, dd) {
+      if (!dd) return "";
+      return `<dt>${esc(dt)}</dt><dd>${esc(Array.isArray(dd) ? dd.join(", ") : dd)}</dd>`;
+    }
+    function open(a) {
+      const imgs = [a.front, a.back, a.inner].filter(Boolean);
+      faces.innerHTML = imgs.map(src => `<img src="${esc(src)}" alt="">`).join("") || "";
+      const tracks = (a.tracks || []).map(t => `<li>${esc([t.side, t.title, (t.writers || []).join(" · "), t.duration].filter(Boolean).join(" — "))}</li>`).join("");
+      const people = (a.personnel || []).map(p => `<li>${esc(p.name || "")}${p.instruments ? " — " + esc((p.instruments || []).join(", ")) : ""}${p.tracks ? " (" + esc(p.tracks) + ")" : ""}</li>`).join("");
+      const sp = a.spotify || ("https://open.spotify.com/search/" + queryFor(a));
+      const ap = a.apple || ("https://music.apple.com/us/search?term=" + queryFor(a));
+      card.innerHTML = `<h2>${esc(a.title || "")}</h2><p class="by">${esc(a.artist || "")}</p>
+        <dl>
+          ${row("Issued", a.year)}
+          ${row("Label", [a.label, a.catalog].filter(Boolean).join(" · "))}
+          ${row("Format", a.format)}
+          ${row("Speed", a.speed)}
+          ${row("Genre", a.genre)}
+          ${row("Recorded", a.studioLive || (a.studios || []).join(" · "))}
+          ${row("Producers", a.producers)}
+          ${row("Engineers", a.engineers)}
+          ${row("Cover", [...(a.illustrators || []), ...(a.photographers || [])])}
+          ${row("Liner notes by", a.linerAuthor)}
+        </dl>
+        ${tracks ? "<h3>Sides</h3><ol class='tracks'>" + tracks + "</ol>" : ""}
+        ${people ? "<h3>Who played</h3><ul class='tracks'>" + people + "</ul>" : ""}
+        ${a.notes || a.raw ? "<h3>From the list</h3><div class='notes'>" + esc(a.notes || a.raw) + "</div>" : ""}
+        <div class="listen">
+          <a class="sp" href="${esc(sp)}" target="_blank" rel="noopener">Listen on Spotify</a>
+          <a class="ap" href="${esc(ap)}" target="_blank" rel="noopener">Listen on Apple Music</a>
+        </div>`;
+      stage.hidden = false;
+      document.body.style.overflow = "hidden";
+      stage.scrollTop = 0;
+    }
+    document.getElementById("close").onclick = () => { stage.hidden = true; document.body.style.overflow = ""; };
+    stage.addEventListener("click", e => { if (e.target === stage) document.getElementById("close").click(); });
+    q.addEventListener("input", draw);
+    draw();
+  </script>
 </body>
 </html>
