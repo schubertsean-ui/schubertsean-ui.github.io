@@ -13,9 +13,6 @@
     .eyebrow { margin: 0 0 .3rem; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
     .lede { margin: 0 0 .7rem; font-weight: 500; font-style: italic; font-size: 1.12rem; }
     #q { width: 100%; background: #0003; border: 1px solid #c4a57444; color: var(--paper); padding: .65rem .75rem; font: 400 1rem "Cormorant Garamond", serif; }
-    .chips { display: flex; gap: .35rem; margin-top: .55rem; }
-    .chips button { font-family: "IBM Plex Mono", monospace; font-size: .55rem; letter-spacing: .08em; text-transform: uppercase; background: transparent; color: var(--muted); border: 1px solid #c4a57433; padding: .35rem .5rem; }
-    .chips button.on { color: var(--paper); border-color: var(--gold); }
     .crate { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 10px; padding: 12px 12px 80px; background: linear-gradient(#3a2a1c,#1a120c); }
     @media (min-width: 720px) { .crate { grid-template-columns: 1fr 1fr 1fr 1fr; } }
     article { background: none; border: 0; color: inherit; text-align: left; padding: 0; width: 100%; cursor: pointer; font: inherit; }
@@ -36,8 +33,7 @@
   <header>
     <p class="eyebrow" id="count">Start anywhere</p>
     <p class="lede">Scroll or Search until something finds you.</p>
-    <input id="q" type="search" placeholder="Artist, title, label, year…" />
-    <div class="chips" id="chips"></div>
+    <input id="q" type="search" placeholder="Artist, title, label…" />
   </header>
   <div class="crate" id="bin"></div>
   <div class="stage" id="stage" hidden>
@@ -45,55 +41,37 @@
     <div class="faces" id="faces"></div>
     <div class="card" id="card"></div>
   </div>
-  <script src="photos.js"></script>
-  <script src="list.js"></script>
+  <script src="g1.js"></script>
+  <script src="g2.js"></script>
+  <script src="g3.js"></script>
   <script>
-    function readable(s) {
-      s = String(s || "").trim();
-      if (!s) return "";
-      const letters = (s.match(/[A-Za-z]/g) || []).length;
-      const words = s.match(/[A-Za-z']+/g) || [];
-      const short = words.filter(w => w.length <= 2).length;
-      if (letters < 6) return "";
-      if (words.length && short / words.length > 0.5) return "";
-      if (/IMG_|ee 4|se ey|epee|Mites |Abd\.|Srey |prAT |geese MILES|CHARLER|tena$/i.test(s)) return "";
-      return s;
-    }
-    const ALL = (window.PHOTOS || []).concat(window.LIST || []).map(a => {
-      const title = readable(a.title) || readable(a.raw) || "";
-      const artist = readable(a.artist);
-      if (!title && !artist) return null;
-      return Object.assign({}, a, { title: title || artist, artist: artist || "" });
-    }).filter(Boolean);
+    const ALL = (window.PHOTOS || []).map(a => ({
+      title: a.t || a.title || "Photographed jacket",
+      artist: a.a || a.artist || "",
+      year: a.y || a.year || "",
+      label: a.l || a.label || "",
+      catalog: a.c || a.catalog || "",
+      front: a.f || a.front || "",
+      back: a.b || a.back || "",
+      inner: a.i || a.inner || ""
+    }));
     const bin = document.getElementById("bin");
     const q = document.getElementById("q");
-    const chips = document.getElementById("chips");
     const count = document.getElementById("count");
     const stage = document.getElementById("stage");
-    let crate = "all";
-    function keyOf(a) { return ((a.artist || a.title || "") + " " + (a.title || "")).toLowerCase(); }
-    function hay(a) { return [a.artist, a.title, a.label, a.catalog, a.year].filter(Boolean).join(" ").toLowerCase(); }
+    function keyOf(a) { return ((a.artist || a.title) + " " + a.title).toLowerCase(); }
+    function hay(a) { return [a.artist, a.title, a.label, a.catalog, a.year].join(" ").toLowerCase(); }
     function esc(s) { return String(s || "").replace(/[&<>"]/g, c => ({ "&": "&", "<": "<", ">": ">", '"': """ }[c])); }
     function qf(a) { return encodeURIComponent([a.artist, a.title].filter(Boolean).join(" ")); }
     function draw() {
-      chips.innerHTML = "";
-      [["all", "All"], ["photo", "Jackets"]].forEach(([id, label]) => {
-        const b = document.createElement("button");
-        b.textContent = label; b.className = crate === id ? "on" : "";
-        b.onclick = () => { crate = id; draw(); }; chips.appendChild(b);
-      });
       const t = q.value.trim().toLowerCase();
-      const rows = ALL.filter(a => {
-        if (crate === "photo" && !a.front) return false;
-        if (!t) return true;
-        return t.split(/\s+/).every(w => hay(a).includes(w));
-      }).sort((x, y) => keyOf(x).localeCompare(keyOf(y)));
-      count.textContent = rows.length + " in the crate";
+      const rows = ALL.filter(a => !t || t.split(/\s+/).every(w => hay(a).includes(w)))
+        .sort((x, y) => keyOf(x).localeCompare(keyOf(y)));
+      count.textContent = rows.length + " jackets in the crate";
       bin.innerHTML = "";
       rows.forEach(a => {
         const el = document.createElement("article");
-        el.innerHTML = (a.front ? `<img class="art" src="${esc(a.front)}" alt="" loading="lazy">` : "") +
-          `<h2>${esc(a.artist || a.title)}</h2><p class="meta">${esc([a.artist && a.title !== a.artist ? a.title : "", a.year, a.label].filter(Boolean).join(" · "))}</p>`;
+        el.innerHTML = `<img class="art" src="${esc(a.front)}" alt="" loading="lazy"><h2>${esc(a.artist || a.title)}</h2><p class="meta">${esc([a.artist && a.title !== a.artist ? a.title : "", a.year, a.label].filter(Boolean).join(" · "))}</p>`;
         el.onclick = () => open(a);
         bin.appendChild(el);
       });
