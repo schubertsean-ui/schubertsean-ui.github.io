@@ -12,20 +12,20 @@
     header { padding: 1.2rem 1.1rem .6rem; }
     .eyebrow { margin: 0 0 .35rem; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .24em; text-transform: uppercase; color: var(--gold); }
     .lede { margin: 0; font-weight: 500; font-style: italic; font-size: 1.15rem; line-height: 1.25; color: var(--paper); }
-    .crate { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 20px 14vw 36px; background: linear-gradient(#3a2a1c,#1a120c); }
-    article { flex: 0 0 auto; width: min(70vw, 300px); scroll-snap-align: center; }
+    .crate { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 12px; padding: 16px 14px 40px; background: linear-gradient(#3a2a1c,#1a120c); }
+    @media (min-width: 720px) { .crate { grid-template-columns: 1fr 1fr 1fr; padding: 20px 24px 48px; } }
     article img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; box-shadow: 8px 16px 28px #0008; background: #111; }
-    article h2 { margin: .55rem 0 0; font-size: 1.15rem; font-weight: 500; font-style: italic; }
-    article p { margin: .15rem 0 .55rem; font-family: "IBM Plex Mono", monospace; font-size: .58rem; color: var(--muted); }
-    .listen { display: flex; flex-direction: column; gap: .35rem; }
-    .listen a { display: block; text-align: center; text-decoration: none; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; padding: .65rem; }
+    article h2 { margin: .45rem 0 0; font-size: 1rem; font-weight: 500; font-style: italic; }
+    article p { margin: .1rem 0 .4rem; font-family: "IBM Plex Mono", monospace; font-size: .52rem; color: var(--muted); }
+    .listen { display: flex; flex-direction: column; gap: .28rem; }
+    .listen a { display: block; text-align: center; text-decoration: none; font-family: "IBM Plex Mono", monospace; font-size: .52rem; letter-spacing: .08em; text-transform: uppercase; padding: .5rem .3rem; }
     .sp { background: #1db954; color: #062; }
     .ap { background: #111; color: #fff; }
   </style>
 </head>
 <body>
   <header>
-    <p class="eyebrow">Start anywhere</p>
+    <p class="eyebrow">Start anywhere · 5 jackets</p>
     <p class="lede">Scroll or Search until something finds you.</p>
   </header>
   <div class="crate">
