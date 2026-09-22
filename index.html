@@ -6,99 +6,76 @@
   <title>The Listening Room</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" />
   <style>
-    :root { --ink:#1a1410; --paper:#eadcc6; --gold:#c4a574; --muted:#9a8b76; }
+    :root { --paper:#eadcc6; --gold:#c4a574; --muted:#9a8b76; }
     * { box-sizing: border-box; }
     html, body { margin: 0; background: #120c09; color: var(--paper); font-family: "Cormorant Garamond", Georgia, serif; }
-    header { padding: 1.2rem 1.1rem .4rem; }
+    header { padding: 1.2rem 1.1rem .3rem; }
     .eyebrow { margin: 0; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .24em; text-transform: uppercase; color: var(--gold); }
-    h1 { margin: .2rem 0 .8rem; font-weight: 500; font-style: italic; font-size: 2.1rem; }
-    #q { width: 100%; background: #0003; border: 1px solid #c4a57444; color: var(--paper); padding: .7rem .8rem; font: 400 1rem "Cormorant Garamond", serif; }
-    .hint { margin: .7rem 1.1rem; color: var(--muted); font-style: italic; }
-    .crate { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 24px 16vw 40px; background: linear-gradient(#3a2a1c,#1a120c); min-height: 58vw; }
-    .sleeve { flex: 0 0 auto; width: min(62vw, 280px); scroll-snap-align: center; border: 0; background: none; color: inherit; text-align: left; padding: 0; }
-    .art { aspect-ratio: 1; width: 100%; background: #111 center/cover no-repeat; box-shadow: 8px 16px 28px #0008; }
-    .sleeve p { margin: .45rem 0 0; }
-    .title { font-family: "IBM Plex Mono", monospace; font-size: .6rem; color: var(--muted); }
-    .stage { position: fixed; inset: 0; background: #0a0705f2; overflow: auto; padding: .7rem; z-index: 20; }
-    .stage[hidden] { display: none; }
-    button.ghost { font-family: "IBM Plex Mono", monospace; font-size: .58rem; letter-spacing: .12em; text-transform: uppercase; background: none; color: var(--gold); border: 1px solid #c4a57455; padding: .4rem .55rem; }
-    .rig { width: min(86vw, 420px); margin: .6rem auto 0; transform-origin: center 40%; }
-    .album { position: relative; width: 100%; aspect-ratio: 1; transform-style: preserve-3d; transition: transform .7s; box-shadow: 0 24px 60px #0009; }
-    .album.flipped { transform: rotateY(180deg); }
-    .face { position: absolute; inset: 0; backface-visibility: hidden; background: #111 center/cover no-repeat; }
-    .face.back { transform: rotateY(180deg); }
-    .controls { display: flex; flex-wrap: wrap; gap: .35rem; justify-content: center; margin: .7rem 0; }
-    .card { background: #f3ead8; color: var(--ink); max-width: 520px; margin: .8rem auto; padding: 1.1rem; }
-    .card h2 { margin: 0; font-style: italic; font-weight: 500; }
-    .by { margin: .15rem 0 1rem; color: #5c4a36; }
-    .listen { display: flex; flex-direction: column; gap: .45rem; margin-top: .9rem; }
-    .listen a { display: block; text-align: center; text-decoration: none; font-family: "IBM Plex Mono", monospace; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; padding: .85rem; border: 1px solid var(--ink); color: var(--ink); }
-    .listen a.sp { background: #1db954; border-color: #1db954; color: #062; }
-    .listen a.ap { background: #111; color: #fff; border-color: #111; }
+    h1 { margin: .2rem 0 .5rem; font-weight: 500; font-style: italic; font-size: 2.1rem; }
+    .hint { margin: 0 1.1rem .8rem; color: var(--muted); font-style: italic; }
+    .crate { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 20px 14vw 36px; background: linear-gradient(#3a2a1c,#1a120c); }
+    article { flex: 0 0 auto; width: min(70vw, 300px); scroll-snap-align: center; }
+    article img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; box-shadow: 8px 16px 28px #0008; background: #111; }
+    article h2 { margin: .55rem 0 0; font-size: 1.15rem; font-weight: 500; font-style: italic; }
+    article p { margin: .15rem 0 .55rem; font-family: "IBM Plex Mono", monospace; font-size: .58rem; color: var(--muted); }
+    .listen { display: flex; flex-direction: column; gap: .35rem; }
+    .listen a { display: block; text-align: center; text-decoration: none; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; padding: .65rem; }
+    .sp { background: #1db954; color: #062; }
+    .ap { background: #111; color: #fff; }
   </style>
 </head>
 <body>
   <header>
     <p class="eyebrow">Private collection</p>
     <h1>The Listening Room</h1>
-    <input id="q" type="search" placeholder="Search artist or title" />
   </header>
-  <p class="hint">Swipe the crate. Tap a jacket.</p>
-  <div class="crate" id="bin"></div>
-  <div class="stage" id="stage" hidden>
-    <button class="ghost" id="close">Put it back</button>
-    <div class="rig" id="rig">
-      <div class="album" id="album">
-        <div class="face front" id="front"></div>
-        <div class="face back" id="back"></div>
+  <p class="hint">Swipe. Tap a jacket to look closer. Then listen.</p>
+  <div class="crate">
+    <article>
+      <a href="https://lh3.googleusercontent.com/d/13tFHMjnjiI63kmlQJT20ADV6Zq_MHgER=w1600"><img src="https://lh3.googleusercontent.com/d/13tFHMjnjiI63kmlQJT20ADV6Zq_MHgER=w800" alt="Diz n Bird" /></a>
+      <h2>Dizzy Gillespie & Charlie Parker</h2>
+      <p>Diz 'n' Bird · Roost / Roulette SK-106</p>
+      <div class="listen">
+        <a class="sp" href="https://open.spotify.com/search/Dizzy%20Gillespie%20Charlie%20Parker%20Diz%20n%20Bird">Listen on Spotify</a>
+        <a class="ap" href="https://music.apple.com/us/search?term=Dizzy%20Gillespie%20Charlie%20Parker%20Diz%20n%20Bird">Listen on Apple Music</a>
       </div>
-    </div>
-    <p class="hint">Pinch to look closer. Tap to turn it over.</p>
-    <div class="controls">
-      <button class="ghost" id="flip">Turn over</button>
-      <button class="ghost" id="near">Closer</button>
-      <button class="ghost" id="far">Back</button>
-    </div>
-    <div class="card" id="card"></div>
+    </article>
+    <article>
+      <a href="https://lh3.googleusercontent.com/d/17PWTWlu20IMRxHc1FpdYd5XpDXJXCmyj=w1600"><img src="https://lh3.googleusercontent.com/d/17PWTWlu20IMRxHc1FpdYd5XpDXJXCmyj=w800" alt="Dances" /></a>
+      <h2>Bowmar Orchestral Library</h2>
+      <p>Dances, Part I · BOL 55 · 1965</p>
+      <div class="listen">
+        <a class="sp" href="https://open.spotify.com/search/Bowmar%20Orchestral%20Library%20Dances">Listen on Spotify</a>
+        <a class="ap" href="https://music.apple.com/us/search?term=Bowmar%20Orchestral%20Library%20Dances">Listen on Apple Music</a>
+      </div>
+    </article>
+    <article>
+      <a href="https://lh3.googleusercontent.com/d/1O51dLHCHNn7GLvqXsyI8X5NtHsS-BmNJ=w1600"><img src="https://lh3.googleusercontent.com/d/1O51dLHCHNn7GLvqXsyI8X5NtHsS-BmNJ=w800" alt="Marches" /></a>
+      <h2>Bowmar Orchestral Library</h2>
+      <p>Marches · BOL 54 · 1965</p>
+      <div class="listen">
+        <a class="sp" href="https://open.spotify.com/search/Bowmar%20Orchestral%20Library%20Marches">Listen on Spotify</a>
+        <a class="ap" href="https://music.apple.com/us/search?term=Bowmar%20Orchestral%20Library%20Marches">Listen on Apple Music</a>
+      </div>
+    </article>
+    <article>
+      <a href="https://lh3.googleusercontent.com/d/1OIoZJyy2H817Q-f0Ym94GorDW1ThR1Uf=w1600"><img src="https://lh3.googleusercontent.com/d/1OIoZJyy2H817Q-f0Ym94GorDW1ThR1Uf=w800" alt="Music USA" /></a>
+      <h2>Bowmar Orchestral Library</h2>
+      <p>Music, U.S.A. · BOL 65</p>
+      <div class="listen">
+        <a class="sp" href="https://open.spotify.com/search/Bowmar%20Music%20USA">Listen on Spotify</a>
+        <a class="ap" href="https://music.apple.com/us/search?term=Bowmar%20Music%20USA">Listen on Apple Music</a>
+      </div>
+    </article>
+    <article>
+      <a href="https://lh3.googleusercontent.com/d/1GAIoCaIjX_xJE9vpT4KaT-FccAD3Uxwh=w1600"><img src="https://lh3.googleusercontent.com/d/1GAIoCaIjX_xJE9vpT4KaT-FccAD3Uxwh=w800" alt="Under Many Flags" /></a>
+      <h2>Bowmar / Noble</h2>
+      <p>Under Many Flags · 3162 · 1962</p>
+      <div class="listen">
+        <a class="sp" href="https://open.spotify.com/search/Bowmar%20Under%20Many%20Flags">Listen on Spotify</a>
+        <a class="ap" href="https://music.apple.com/us/search?term=Bowmar%20Under%20Many%20Flags">Listen on Apple Music</a>
+      </div>
+    </article>
   </div>
-<script>
-const ALBUMS = [
-  {title:"Diz 'n' Bird: The Beginning", artist:"Dizzy Gillespie & Charlie Parker", label:"Roost / Roulette", catalog:"SK-106",
-   front:"https://lh3.googleusercontent.com/d/13tFHMjnjiI63kmlQJT20ADV6Zq_MHgER=w800",
-   back:"https://lh3.googleusercontent.com/d/1LZD1TLyvUUCmyVO4u4f5PjkuQIjrVW6N=w800"},
-  {title:"Dances, Part I", artist:"Bowmar Orchestral Library", year:"1965", label:"Bowmar", catalog:"BOL 55",
-   front:"https://lh3.googleusercontent.com/d/17PWTWlu20IMRxHc1FpdYd5XpDXJXCmyj=w800",
-   back:"https://lh3.googleusercontent.com/d/1PPaQBJu2TEuKVmbNFbPJu49vGoqV6720=w800"},
-  {title:"Marches", artist:"Bowmar Orchestral Library", year:"1965", label:"Bowmar", catalog:"BOL 54",
-   front:"https://lh3.googleusercontent.com/d/1O51dLHCHNn7GLvqXsyI8X5NtHsS-BmNJ=w800",
-   back:"https://lh3.googleusercontent.com/d/1_miXo53C4xd4xRRhUfQ6s9PJu6VpAs8D=w800"},
-  {title:"Music, U.S.A.", artist:"Bowmar Orchestral Library", label:"Bowmar", catalog:"BOL 65",
-   front:"https://lh3.googleusercontent.com/d/1OIoZJyy2H817Q-f0Ym94GorDW1ThR1Uf=w800",
-   back:"https://lh3.googleusercontent.com/d/1cP1ZcpgxF5ZzQKjexkXkQFNRM4RV1i9Y=w800"},
-  {title:"Under Many Flags", artist:"Bowmar / Noble Orchestral Library", year:"1962", label:"Bowmar", catalog:"3162",
-   front:"https://lh3.googleusercontent.com/d/1GAIoCaIjX_xJE9vpT4KaT-FccAD3Uxwh=w800",
-   back:"https://lh3.googleusercontent.com/d/1_xtfKHmEAUq2ML72V_pp8CVnXx2c1bhE=w800"}
-];
-const bin=document.getElementById("bin"),q=document.getElementById("q"),stage=document.getElementById("stage"),albumEl=document.getElementById("album"),rig=document.getElementById("rig"),front=document.getElementById("front"),back=document.getElementById("back"),card=document.getElementById("card");
-let current=null,scale=1,pinching=false;
-function esc(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&","<":"<",">":">","\"":"""}[c]))}
-function query(a){return encodeURIComponent([a.artist,a.title].join(" "))}
-function draw(){const t=q.value.trim().toLowerCase();bin.innerHTML="";ALBUMS.filter(a=>!t||(a.artist+" "+a.title+" "+(a.label||"")).toLowerCase().includes(t)).forEach(a=>{const b=document.createElement("button");b.className="sleeve";b.innerHTML=`<div class="art" style="background-image:url('${a.front}')"></div><p>${esc(a.artist)}</p><p class="title">${esc(a.title)}</p>`;b.onclick=()=>open(a);bin.appendChild(b)})}
-function applyScale(){rig.style.transform="scale("+scale+")"}
-function open(a){current=a;scale=1;applyScale();front.style.backgroundImage="url('"+a.front+"')";back.style.backgroundImage="url('"+(a.back||a.front)+"')";albumEl.classList.remove("flipped");card.innerHTML=`<h2>${esc(a.title)}</h2><p class="by">${esc(a.artist)}</p><p>${esc([a.label,a.catalog,a.year].filter(Boolean).join(" · "))}</p><div class="listen"><a class="sp" href="https://open.spotify.com/search/${query(a)}" target="_blank" rel="noopener">Listen on Spotify</a><a class="ap" href="https://music.apple.com/us/search?term=${query(a)}" target="_blank" rel="noopener">Listen on Apple Music</a></div>`;stage.hidden=false;document.body.style.overflow="hidden"}
-function close(){stage.hidden=true;document.body.style.overflow="";current=null}
-document.getElementById("close").onclick=close;
-document.getElementById("flip").onclick=()=>albumEl.classList.toggle("flipped");
-document.getElementById("near").onclick=()=>{scale=Math.min(3,scale+0.35);applyScale()};
-document.getElementById("far").onclick=()=>{scale=Math.max(1,scale-0.35);applyScale()};
-albumEl.onclick=()=>{if(!pinching)albumEl.classList.toggle("flipped")};
-let startX=0,pinchStart=0,pinchBase=1;
-function dist(t){return Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY)}
-albumEl.addEventListener("touchstart",e=>{if(e.touches.length===2){pinching=true;pinchStart=dist(e.touches);pinchBase=scale}else startX=e.changedTouches[0].clientX},{passive:true});
-albumEl.addEventListener("touchmove",e=>{if(e.touches.length===2&&pinchStart){e.preventDefault();scale=Math.min(3,Math.max(1,pinchBase*(dist(e.touches)/pinchStart)));applyScale()}},{passive:false});
-albumEl.addEventListener("touchend",e=>{if(pinching){if(!e.touches.length)pinching=false;return}if(Math.abs(e.changedTouches[0].clientX-startX)>40)albumEl.classList.toggle("flipped")},{passive:true});
-q.addEventListener("input",draw);
-draw();
-</script>
 </body>
 </html>
