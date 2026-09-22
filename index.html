@@ -17,6 +17,7 @@
     @media (min-width: 720px) { .crate { grid-template-columns: 1fr 1fr 1fr 1fr; } }
     article { background: none; border: 0; color: inherit; text-align: left; padding: 0; width: 100%; cursor: pointer; font: inherit; }
     .art { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #1b140f; box-shadow: 6px 12px 22px #0007; }
+    .blank { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; padding: .7rem; text-align: center; background: #cbb896; color: #3a2a1c; font-style: italic; font-size: .88rem; box-shadow: 6px 12px 22px #0007; }
     article h2 { margin: .4rem 0 0; font-size: .92rem; font-weight: 500; font-style: italic; }
     article .meta { margin: .1rem 0 0; font-family: "IBM Plex Mono", monospace; font-size: .5rem; color: var(--muted); }
     .stage { position: fixed; inset: 0; background: #0a0705f5; overflow: auto; padding: .8rem; z-index: 20; }
@@ -27,13 +28,14 @@
     .listen a { display: block; text-align: center; text-decoration: none; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; padding: .7rem; margin-top: .35rem; }
     .sp { background: #1db954; color: #062; }
     .ap { background: #111; color: #fff; }
+    .notes { white-space: pre-wrap; }
   </style>
 </head>
 <body>
   <header>
     <p class="eyebrow" id="count">Loading the crate…</p>
     <p class="lede">Scroll or Search until something finds you.</p>
-    <input id="q" type="search" placeholder="Artist, title, label…" />
+    <input id="q" type="search" placeholder="Artist, title, label, year…" />
   </header>
   <div class="crate" id="bin"></div>
   <div class="stage" id="stage" hidden>
@@ -43,20 +45,25 @@
   </div>
   <script>
     window.PHOTOS = window.PHOTOS || [];
-    const FILES = ["g1.js","g2.js","g3.js","g4.js","g5.js","g6.js","g7.js","g8.js","g9.js","photos.js"];
+    window.LIST = window.LIST || [];
+    const FILES = [];
+    for (let i = 1; i <= 9; i++) FILES.push("g" + i + ".js");
+    for (let i = 1; i <= 12; i++) FILES.push("l" + String(i).padStart(2,"0") + ".js");
+    FILES.push("photos.js", "list.js");
     function loadFile(src) {
       return fetch(src, { cache: "no-cache" }).then(r => {
         if (!r.ok) return;
         return r.text().then(code => { try { (0, eval)(code); } catch (e) {} });
       }).catch(() => {});
     }
-    function mapRow(a) {
+    function row(a) {
       return {
-        title: a.t || a.title || "Photographed jacket",
+        title: a.t || a.title || a.r || a.raw || "",
         artist: a.a || a.artist || "",
         year: a.y || a.year || "",
         label: a.l || a.label || "",
         catalog: a.c || a.catalog || "",
+        notes: a.n || a.notes || a.r || a.raw || "",
         front: a.f || a.front || "",
         back: a.b || a.back || "",
         inner: a.i || a.inner || ""
@@ -66,27 +73,32 @@
     const q = document.getElementById("q");
     const count = document.getElementById("count");
     const stage = document.getElementById("stage");
-    function keyOf(a) { return ((a.artist || a.title) + " " + a.title).toLowerCase(); }
-    function hay(a) { return [a.artist, a.title, a.label, a.catalog, a.year].join(" ").toLowerCase(); }
+    function keyOf(a) { return ((a.artist || a.title || "") + " " + (a.title || "")).toLowerCase(); }
+    function hay(a) { return [a.artist, a.title, a.label, a.catalog, a.year, a.notes].join(" ").toLowerCase(); }
     function esc(s) { return String(s || "").replace(/[&<>"]/g, c => ({ "&": "&", "<": "<", ">": ">", '"': """ }[c])); }
-    function qf(a) { return encodeURIComponent([a.artist, a.title].filter(Boolean).join(" ")); }
+    function qf(a) { return encodeURIComponent([a.artist, a.title].filter(Boolean).join(" ") || "vinyl"); }
     let ALL = [];
     function draw() {
       const t = q.value.trim().toLowerCase();
-      const rows = ALL.filter(a => a.front && (!t || t.split(/\s+/).every(w => hay(a).includes(w))))
+      const rows = ALL.filter(a => (a.title || a.front) && (!t || t.split(/\s+/).every(w => hay(a).includes(w))))
         .sort((x, y) => keyOf(x).localeCompare(keyOf(y)));
-      count.textContent = rows.length + " jackets in the crate";
+      const jackets = rows.filter(a => a.front).length;
+      const listed = rows.filter(a => !a.front).length;
+      count.textContent = rows.length + " in the crate · " + jackets + " jackets · " + listed + " list lines";
       bin.innerHTML = "";
       rows.forEach(a => {
         const el = document.createElement("article");
-        el.innerHTML = `<img class="art" src="${esc(a.front)}" alt="" loading="lazy"><h2>${esc(a.artist || a.title)}</h2><p class="meta">${esc([a.artist && a.title !== a.artist ? a.title : "", a.year, a.label].filter(Boolean).join(" · "))}</p>`;
+        const face = a.front
+          ? `<img class="art" src="${esc(a.front)}" alt="" loading="lazy">`
+          : `<div class="blank">${esc((a.title || "List line").slice(0, 90))}</div>`;
+        el.innerHTML = face + `<h2>${esc(a.artist || a.title || "Untitled")}</h2><p class="meta">${esc([a.artist && a.title !== a.artist ? a.title : "", a.year, a.label].filter(Boolean).join(" · "))}</p>`;
         el.onclick = () => open(a);
         bin.appendChild(el);
       });
     }
     function open(a) {
       document.getElementById("faces").innerHTML = [a.front, a.back, a.inner].filter(Boolean).map(s => `<img src="${esc(s)}" alt="">`).join("");
-      document.getElementById("card").innerHTML = `<h2>${esc(a.title)}</h2><p>${esc(a.artist)}</p><p>${esc([a.year, a.label, a.catalog].filter(Boolean).join(" · "))}</p>
+      document.getElementById("card").innerHTML = `<h2>${esc(a.title)}</h2><p>${esc(a.artist)}</p><p>${esc([a.year, a.label, a.catalog].filter(Boolean).join(" · "))}</p>${a.notes ? `<div class="notes">${esc(a.notes)}</div>` : ""}
         <a class="listen sp" href="https://open.spotify.com/search/${qf(a)}" target="_blank" rel="noopener">Listen on Spotify</a>
         <a class="listen ap" href="https://music.apple.com/us/search?term=${qf(a)}" target="_blank" rel="noopener">Listen on Apple Music</a>`;
       stage.hidden = false; document.body.style.overflow = "hidden";
@@ -95,12 +107,16 @@
     q.addEventListener("input", draw);
     Promise.all(FILES.map(loadFile)).then(() => {
       const seen = new Set();
-      ALL = (window.PHOTOS || []).map(mapRow).filter(a => {
-        const k = a.front || (a.artist + a.title);
-        if (seen.has(k)) return false;
-        seen.add(k);
-        return true;
-      });
+      ALL = []
+        .concat((window.PHOTOS || []).map(row))
+        .concat((window.LIST || []).map(row))
+        .filter(a => {
+          const k = (a.front || "") + "|" + (a.artist || "") + "|" + (a.title || "");
+          if (!a.title && !a.front) return false;
+          if (seen.has(k)) return false;
+          seen.add(k);
+          return true;
+        });
       draw();
     });
   </script>
