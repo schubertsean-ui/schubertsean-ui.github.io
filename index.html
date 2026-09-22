@@ -33,9 +33,9 @@
 </head>
 <body>
   <header>
-    <p class="eyebrow" id="count">Loading the crate…</p>
+    <p class="eyebrow" id="count">Loading the crate...</p>
     <p class="lede">Scroll or Search until something finds you.</p>
-    <input id="q" type="search" placeholder="Artist, title, label, year…" />
+    <input id="q" type="search" placeholder="Artist, title, label, year..." />
   </header>
   <div class="crate" id="bin"></div>
   <div class="stage" id="stage" hidden>
@@ -46,15 +46,17 @@
   <script>
     window.PHOTOS = window.PHOTOS || [];
     window.LIST = window.LIST || [];
-    const FILES = [];
-    for (let i = 1; i <= 9; i++) FILES.push("g" + i + ".js");
-    for (let i = 1; i <= 12; i++) FILES.push("l" + String(i).padStart(2,"0") + ".js");
-    FILES.push("photos.js", "list.js");
+    var FILES = [];
+    var i;
+    for (i = 1; i <= 9; i++) FILES.push("g" + i + ".js");
+    for (i = 1; i <= 12; i++) FILES.push("l" + (i < 10 ? "0" + i : "" + i) + ".js");
     function loadFile(src) {
-      return fetch(src, { cache: "no-cache" }).then(r => {
+      return fetch(src, { cache: "no-cache" }).then(function (r) {
         if (!r.ok) return;
-        return r.text().then(code => { try { (0, eval)(code); } catch (e) {} });
-      }).catch(() => {});
+        return r.text().then(function (code) {
+          try { (0, eval)(code); } catch (e) {}
+        });
+      }).catch(function () {});
     }
     function row(a) {
       return {
@@ -69,56 +71,67 @@
         inner: a.i || a.inner || ""
       };
     }
-    const bin = document.getElementById("bin");
-    const q = document.getElementById("q");
-    const count = document.getElementById("count");
-    const stage = document.getElementById("stage");
+    var bin = document.getElementById("bin");
+    var q = document.getElementById("q");
+    var count = document.getElementById("count");
+    var stage = document.getElementById("stage");
     function keyOf(a) { return ((a.artist || a.title || "") + " " + (a.title || "")).toLowerCase(); }
     function hay(a) { return [a.artist, a.title, a.label, a.catalog, a.year, a.notes].join(" ").toLowerCase(); }
-    function esc(s) { return String(s || "").replace(/[&<>"]/g, c => ({ "&": "&", "<": "<", ">": ">", '"': """ }[c])); }
+    function esc(s) {
+      return String(s || "")
+        .replace(/&/g, "&")
+        .replace(/</g, "<")
+        .replace(/>/g, ">")
+        .replace(/"/g, """);
+    }
     function qf(a) { return encodeURIComponent([a.artist, a.title].filter(Boolean).join(" ") || "vinyl"); }
-    let ALL = [];
+    var ALL = [];
     function draw() {
-      const t = q.value.trim().toLowerCase();
-      const rows = ALL.filter(a => (a.title || a.front) && (!t || t.split(/\s+/).every(w => hay(a).includes(w))))
-        .sort((x, y) => keyOf(x).localeCompare(keyOf(y)));
-      const jackets = rows.filter(a => a.front).length;
-      const listed = rows.filter(a => !a.front).length;
-      count.textContent = rows.length + " in the crate · " + jackets + " jackets · " + listed + " list lines";
+      var t = q.value.trim().toLowerCase();
+      var rows = ALL.filter(function (a) {
+        if (!a.title && !a.front) return false;
+        if (!t) return true;
+        return t.split(/\s+/).every(function (w) { return hay(a).indexOf(w) !== -1; });
+      }).sort(function (x, y) { return keyOf(x).localeCompare(keyOf(y)); });
+      var jackets = 0, listed = 0, n;
+      for (n = 0; n < rows.length; n++) { if (rows[n].front) jackets++; else listed++; }
+      count.textContent = rows.length + " in the crate | " + jackets + " jackets | " + listed + " list lines";
       bin.innerHTML = "";
-      rows.forEach(a => {
-        const el = document.createElement("article");
-        const face = a.front
-          ? `<img class="art" src="${esc(a.front)}" alt="" loading="lazy">`
-          : `<div class="blank">${esc((a.title || "List line").slice(0, 90))}</div>`;
-        el.innerHTML = face + `<h2>${esc(a.artist || a.title || "Untitled")}</h2><p class="meta">${esc([a.artist && a.title !== a.artist ? a.title : "", a.year, a.label].filter(Boolean).join(" · "))}</p>`;
-        el.onclick = () => open(a);
+      rows.forEach(function (a) {
+        var el = document.createElement("article");
+        var face = a.front
+          ? "<img class=\"art\" src=\"" + esc(a.front) + "\" alt=\"\" loading=\"lazy\">"
+          : "<div class=\"blank\">" + esc((a.title || "List line").slice(0, 90)) + "</div>";
+        el.innerHTML = face + "<h2>" + esc(a.artist || a.title || "Untitled") + "</h2><p class=\"meta\">" + esc([a.artist && a.title !== a.artist ? a.title : "", a.year, a.label].filter(Boolean).join(" | ")) + "</p>";
+        el.onclick = function () { open(a); };
         bin.appendChild(el);
       });
     }
     function open(a) {
-      document.getElementById("faces").innerHTML = [a.front, a.back, a.inner].filter(Boolean).map(s => `<img src="${esc(s)}" alt="">`).join("");
-      document.getElementById("card").innerHTML = `<h2>${esc(a.title)}</h2><p>${esc(a.artist)}</p><p>${esc([a.year, a.label, a.catalog].filter(Boolean).join(" · "))}</p>${a.notes ? `<div class="notes">${esc(a.notes)}</div>` : ""}
-        <a class="listen sp" href="https://open.spotify.com/search/${qf(a)}" target="_blank" rel="noopener">Listen on Spotify</a>
-        <a class="listen ap" href="https://music.apple.com/us/search?term=${qf(a)}" target="_blank" rel="noopener">Listen on Apple Music</a>`;
-      stage.hidden = false; document.body.style.overflow = "hidden";
+      document.getElementById("faces").innerHTML = [a.front, a.back, a.inner].filter(Boolean).map(function (s) {
+        return "<img src=\"" + esc(s) + "\" alt=\"\">";
+      }).join("");
+      document.getElementById("card").innerHTML =
+        "<h2>" + esc(a.title) + "</h2><p>" + esc(a.artist) + "</p><p>" + esc([a.year, a.label, a.catalog].filter(Boolean).join(" | ")) + "</p>" +
+        (a.notes ? "<div class=\"notes\">" + esc(a.notes) + "</div>" : "") +
+        "<a class=\"listen sp\" href=\"https://open.spotify.com/search/" + qf(a) + "\" target=\"_blank\" rel=\"noopener\">Listen on Spotify</a>" +
+        "<a class=\"listen ap\" href=\"https://music.apple.com/us/search?term=" + qf(a) + "\" target=\"_blank\" rel=\"noopener\">Listen on Apple Music</a>";
+      stage.hidden = false;
+      document.body.style.overflow = "hidden";
     }
-    document.getElementById("close").onclick = () => { stage.hidden = true; document.body.style.overflow = ""; };
+    document.getElementById("close").onclick = function () { stage.hidden = true; document.body.style.overflow = ""; };
     q.addEventListener("input", draw);
-    Promise.all(FILES.map(loadFile)).then(() => {
-      const seen = new Set();
-      ALL = []
-        .concat((window.PHOTOS || []).map(row))
-        .concat((window.LIST || []).map(row))
-        .filter(a => {
-          const k = (a.front || "") + "|" + (a.artist || "") + "|" + (a.title || "");
-          if (!a.title && !a.front) return false;
-          if (seen.has(k)) return false;
-          seen.add(k);
-          return true;
-        });
+    Promise.all(FILES.map(loadFile)).then(function () {
+      var seen = {};
+      ALL = [].concat(window.PHOTOS || [], window.LIST || []).map(row).filter(function (a) {
+        var k = (a.front || "") + "|" + (a.artist || "") + "|" + (a.title || "");
+        if (!a.title && !a.front) return false;
+        if (seen[k]) return false;
+        seen[k] = 1;
+        return true;
+      });
       draw();
-    });
+    }).catch(function () { draw(); });
   </script>
 </body>
 </html>
