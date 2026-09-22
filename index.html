@@ -1,137 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Scroll or Search until something finds you.</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" />
-  <style>
-    :root { --paper:#eadcc6; --gold:#c4a574; --muted:#9a8b76; --ink:#1a1410; }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; background: #120c09; color: var(--paper); font-family: "Cormorant Garamond", Georgia, serif; }
-    header { padding: 1.1rem 1rem .7rem; position: sticky; top: 0; z-index: 5; background: #120c09f2; }
-    .eyebrow { margin: 0 0 .3rem; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
-    .lede { margin: 0 0 .7rem; font-weight: 500; font-style: italic; font-size: 1.12rem; }
-    #q { width: 100%; background: #0003; border: 1px solid #c4a57444; color: var(--paper); padding: .65rem .75rem; font: 400 1rem "Cormorant Garamond", serif; }
-    .crate { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 10px; padding: 12px 12px 80px; background: linear-gradient(#3a2a1c,#1a120c); }
-    @media (min-width: 720px) { .crate { grid-template-columns: 1fr 1fr 1fr 1fr; } }
-    article { background: none; border: 0; color: inherit; text-align: left; padding: 0; width: 100%; cursor: pointer; font: inherit; }
-    .art { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #1b140f; box-shadow: 6px 12px 22px #0007; }
-    .blank { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; padding: .7rem; text-align: center; background: #cbb896; color: #3a2a1c; font-style: italic; font-size: .88rem; box-shadow: 6px 12px 22px #0007; }
-    article h2 { margin: .4rem 0 0; font-size: .92rem; font-weight: 500; font-style: italic; }
-    article .meta { margin: .1rem 0 0; font-family: "IBM Plex Mono", monospace; font-size: .5rem; color: var(--muted); }
-    .stage { position: fixed; inset: 0; background: #0a0705f5; overflow: auto; padding: .8rem; z-index: 20; }
-    .stage[hidden] { display: none; }
-    .ghost { font-family: "IBM Plex Mono", monospace; font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; background: none; color: var(--gold); border: 1px solid #c4a57455; padding: .4rem .55rem; }
-    .faces img { width: min(88vw,440px); display: block; margin: .6rem auto; background: #111; }
-    .card { background: #f3ead8; color: var(--ink); max-width: 520px; margin: .8rem auto 2rem; padding: 1.1rem; }
-    .listen a { display: block; text-align: center; text-decoration: none; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; padding: .7rem; margin-top: .35rem; }
-    .sp { background: #1db954; color: #062; }
-    .ap { background: #111; color: #fff; }
-    .notes { white-space: pre-wrap; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Scroll or Search until something finds you.</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" />
+<style>
+:root { --paper:#eadcc6; --gold:#c4a574; --muted:#9a8b76; --ink:#1a1410; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #120c09; color: var(--paper); font-family: "Cormorant Garamond", Georgia, serif; }
+header { padding: 1.1rem 1rem .7rem; position: sticky; top: 0; z-index: 5; background: #120c09f2; }
+.eyebrow { margin: 0 0 .3rem; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+.lede { margin: 0 0 .7rem; font-weight: 500; font-style: italic; font-size: 1.12rem; }
+#q { width: 100%; background: #0003; border: 1px solid #c4a57444; color: var(--paper); padding: .65rem .75rem; font: 400 1rem "Cormorant Garamond", serif; }
+.crate { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 10px; padding: 12px 12px 80px; background: linear-gradient(#3a2a1c,#1a120c); }
+@media (min-width: 720px) { .crate { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+article { text-align: left; padding: 0; width: 100%; cursor: pointer; }
+.art { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #1b140f; box-shadow: 6px 12px 22px #0007; }
+.blank { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; padding: .7rem; text-align: center; background: #cbb896; color: #3a2a1c; font-style: italic; font-size: .88rem; box-shadow: 6px 12px 22px #0007; }
+article h2 { margin: .4rem 0 0; font-size: .92rem; font-weight: 500; font-style: italic; }
+article .meta { margin: .1rem 0 0; font-family: "IBM Plex Mono", monospace; font-size: .5rem; color: var(--muted); }
+.stage { position: fixed; inset: 0; background: #0a0705f5; overflow: auto; padding: .8rem; z-index: 20; }
+.stage[hidden] { display: none; }
+.ghost { font-family: "IBM Plex Mono", monospace; font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; background: none; color: var(--gold); border: 1px solid #c4a57455; padding: .4rem .55rem; }
+.faces img { width: min(88vw,440px); display: block; margin: .6rem auto; background: #111; }
+.card { background: #f3ead8; color: var(--ink); max-width: 520px; margin: .8rem auto 2rem; padding: 1.1rem; }
+.listen a { display: block; text-align: center; text-decoration: none; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; padding: .7rem; margin-top: .35rem; }
+.sp { background: #1db954; color: #062; }
+.ap { background: #111; color: #fff; }
+</style>
 </head>
 <body>
-  <header>
-    <p class="eyebrow" id="count">Loading the crate...</p>
-    <p class="lede">Scroll or Search until something finds you.</p>
-    <input id="q" type="search" placeholder="Artist, title, label, year..." />
-  </header>
-  <div class="crate" id="bin"></div>
-  <div class="stage" id="stage" hidden>
-    <button class="ghost" id="close">Put it back</button>
-    <div class="faces" id="faces"></div>
-    <div class="card" id="card"></div>
-  </div>
-  <script>
-    window.PHOTOS = window.PHOTOS || [];
-    window.LIST = window.LIST || [];
-    var FILES = [];
-    var i;
-    for (i = 1; i <= 9; i++) FILES.push("g" + i + ".js");
-    for (i = 1; i <= 12; i++) FILES.push("l" + (i < 10 ? "0" + i : "" + i) + ".js");
-    function loadFile(src) {
-      return fetch(src, { cache: "no-cache" }).then(function (r) {
-        if (!r.ok) return;
-        return r.text().then(function (code) {
-          try { (0, eval)(code); } catch (e) {}
-        });
-      }).catch(function () {});
+<header>
+<p class="eyebrow" id="count">Loading the crate...</p>
+<p class="lede">Scroll or Search until something finds you.</p>
+<input id="q" type="search" placeholder="Artist, title, label, year..." />
+</header>
+<div class="crate" id="bin"></div>
+<div class="stage" id="stage" hidden>
+<button class="ghost" id="close">Put it back</button>
+<div class="faces" id="faces"></div>
+<div class="card" id="card"></div>
+</div>
+<script>
+window.PHOTOS = window.PHOTOS || [];
+window.LIST = window.LIST || [];
+var FILES = [];
+var i;
+for (i = 1; i <= 9; i++) FILES.push('g' + i + '.js');
+for (i = 1; i <= 12; i++) FILES.push('l' + (i < 10 ? '0' + i : '' + i) + '.js');
+function loadFile(src) {
+  return fetch(src, { cache: 'no-cache' }).then(function (r) {
+    if (!r.ok) return;
+    return r.text().then(function (code) { try { (0, eval)(code); } catch (e) {} });
+  }).catch(function () {});
+}
+function row(a) {
+  return {
+    title: a.t || a.title || a.r || a.raw || '',
+    artist: a.a || a.artist || '',
+    year: a.y || a.year || '',
+    label: a.l || a.label || '',
+    catalog: a.c || a.catalog || '',
+    notes: a.n || a.notes || a.r || a.raw || '',
+    front: a.f || a.front || '',
+    back: a.b || a.back || '',
+    inner: a.i || a.inner || ''
+  };
+}
+var bin = document.getElementById('bin');
+var q = document.getElementById('q');
+var count = document.getElementById('count');
+var stage = document.getElementById('stage');
+var ALL = [];
+function keyOf(a) { return ((a.artist || a.title || '') + ' ' + (a.title || '')).toLowerCase(); }
+function hay(a) { return [a.artist, a.title, a.label, a.catalog, a.year, a.notes].join(' ').toLowerCase(); }
+function el(tag, cls, text) {
+  var n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text) n.textContent = text;
+  return n;
+}
+function draw() {
+  var t = q.value.trim().toLowerCase();
+  var rows = ALL.filter(function (a) {
+    if (!a.title && !a.front) return false;
+    if (!t) return true;
+    return t.split(/\s+/).every(function (w) { return hay(a).indexOf(w) !== -1; });
+  }).sort(function (x, y) { return keyOf(x).localeCompare(keyOf(y)); });
+  var jackets = 0, listed = 0, n;
+  for (n = 0; n < rows.length; n++) { if (rows[n].front) jackets++; else listed++; }
+  count.textContent = rows.length + ' in the crate | ' + jackets + ' jackets | ' + listed + ' list lines';
+  bin.textContent = '';
+  rows.forEach(function (a) {
+    var card = el('article');
+    if (a.front) {
+      var img = el('img', 'art');
+      img.src = a.front;
+      img.alt = '';
+      img.loading = 'lazy';
+      card.appendChild(img);
+    } else {
+      card.appendChild(el('div', 'blank', (a.title || 'List line').slice(0, 90)));
     }
-    function row(a) {
-      return {
-        title: a.t || a.title || a.r || a.raw || "",
-        artist: a.a || a.artist || "",
-        year: a.y || a.year || "",
-        label: a.l || a.label || "",
-        catalog: a.c || a.catalog || "",
-        notes: a.n || a.notes || a.r || a.raw || "",
-        front: a.f || a.front || "",
-        back: a.b || a.back || "",
-        inner: a.i || a.inner || ""
-      };
-    }
-    var bin = document.getElementById("bin");
-    var q = document.getElementById("q");
-    var count = document.getElementById("count");
-    var stage = document.getElementById("stage");
-    function keyOf(a) { return ((a.artist || a.title || "") + " " + (a.title || "")).toLowerCase(); }
-    function hay(a) { return [a.artist, a.title, a.label, a.catalog, a.year, a.notes].join(" ").toLowerCase(); }
-    function esc(s) {
-      return String(s || "")
-        .replace(/&/g, "&")
-        .replace(/</g, "<")
-        .replace(/>/g, ">")
-        .replace(/"/g, """);
-    }
-    function qf(a) { return encodeURIComponent([a.artist, a.title].filter(Boolean).join(" ") || "vinyl"); }
-    var ALL = [];
-    function draw() {
-      var t = q.value.trim().toLowerCase();
-      var rows = ALL.filter(function (a) {
-        if (!a.title && !a.front) return false;
-        if (!t) return true;
-        return t.split(/\s+/).every(function (w) { return hay(a).indexOf(w) !== -1; });
-      }).sort(function (x, y) { return keyOf(x).localeCompare(keyOf(y)); });
-      var jackets = 0, listed = 0, n;
-      for (n = 0; n < rows.length; n++) { if (rows[n].front) jackets++; else listed++; }
-      count.textContent = rows.length + " in the crate | " + jackets + " jackets | " + listed + " list lines";
-      bin.innerHTML = "";
-      rows.forEach(function (a) {
-        var el = document.createElement("article");
-        var face = a.front
-          ? "<img class=\"art\" src=\"" + esc(a.front) + "\" alt=\"\" loading=\"lazy\">"
-          : "<div class=\"blank\">" + esc((a.title || "List line").slice(0, 90)) + "</div>";
-        el.innerHTML = face + "<h2>" + esc(a.artist || a.title || "Untitled") + "</h2><p class=\"meta\">" + esc([a.artist && a.title !== a.artist ? a.title : "", a.year, a.label].filter(Boolean).join(" | ")) + "</p>";
-        el.onclick = function () { open(a); };
-        bin.appendChild(el);
-      });
-    }
-    function open(a) {
-      document.getElementById("faces").innerHTML = [a.front, a.back, a.inner].filter(Boolean).map(function (s) {
-        return "<img src=\"" + esc(s) + "\" alt=\"\">";
-      }).join("");
-      document.getElementById("card").innerHTML =
-        "<h2>" + esc(a.title) + "</h2><p>" + esc(a.artist) + "</p><p>" + esc([a.year, a.label, a.catalog].filter(Boolean).join(" | ")) + "</p>" +
-        (a.notes ? "<div class=\"notes\">" + esc(a.notes) + "</div>" : "") +
-        "<a class=\"listen sp\" href=\"https://open.spotify.com/search/" + qf(a) + "\" target=\"_blank\" rel=\"noopener\">Listen on Spotify</a>" +
-        "<a class=\"listen ap\" href=\"https://music.apple.com/us/search?term=" + qf(a) + "\" target=\"_blank\" rel=\"noopener\">Listen on Apple Music</a>";
-      stage.hidden = false;
-      document.body.style.overflow = "hidden";
-    }
-    document.getElementById("close").onclick = function () { stage.hidden = true; document.body.style.overflow = ""; };
-    q.addEventListener("input", draw);
-    Promise.all(FILES.map(loadFile)).then(function () {
-      var seen = {};
-      ALL = [].concat(window.PHOTOS || [], window.LIST || []).map(row).filter(function (a) {
-        var k = (a.front || "") + "|" + (a.artist || "") + "|" + (a.title || "");
-        if (!a.title && !a.front) return false;
-        if (seen[k]) return false;
-        seen[k] = 1;
-        return true;
-      });
-      draw();
-    }).catch(function () { draw(); });
-  </script>
+    card.appendChild(el('h2', '', a.artist || a.title || 'Untitled'));
+    card.appendChild(el('p', 'meta', [a.artist && a.title !== a.artist ? a.title : '', a.year, a.label].filter(Boolean).join(' | ')));
+    card.onclick = function () { openAlbum(a); };
+    bin.appendChild(card);
+  });
+}
+function openAlbum(a) {
+  var faces = document.getElementById('faces');
+  var card = document.getElementById('card');
+  faces.textContent = '';
+  card.textContent = '';
+  [a.front, a.back, a.inner].filter(Boolean).forEach(function (src) {
+    var img = el('img');
+    img.src = src;
+    faces.appendChild(img);
+  });
+  card.appendChild(el('h2', '', a.title));
+  card.appendChild(el('p', '', a.artist));
+  card.appendChild(el('p', '', [a.year, a.label, a.catalog].filter(Boolean).join(' | ')));
+  if (a.notes) card.appendChild(el('div', 'notes', a.notes));
+  var sp = el('a', 'listen sp', 'Listen on Spotify');
+  sp.href = 'https://open.spotify.com/search/' + encodeURIComponent([a.artist, a.title].filter(Boolean).join(' ') || 'vinyl');
+  sp.target = '_blank';
+  var ap = el('a', 'listen ap', 'Listen on Apple Music');
+  ap.href = 'https://music.apple.com/us/search?term=' + encodeURIComponent([a.artist, a.title].filter(Boolean).join(' ') || 'vinyl');
+  ap.target = '_blank';
+  card.appendChild(sp);
+  card.appendChild(ap);
+  stage.hidden = false;
+  document.body.style.overflow = 'hidden';
+}
+document.getElementById('close').onclick = function () { stage.hidden = true; document.body.style.overflow = ''; };
+q.addEventListener('input', draw);
+Promise.all(FILES.map(loadFile)).then(function () {
+  var seen = {};
+  ALL = [].concat(window.PHOTOS || [], window.LIST || []).map(row).filter(function (a) {
+    var k = (a.front || '') + '|' + (a.artist || '') + '|' + (a.title || '');
+    if (!a.title && !a.front) return false;
+    if (seen[k]) return false;
+    seen[k] = 1;
+    return true;
+  });
+  draw();
+}).catch(function () { draw(); });
+</script>
 </body>
 </html>
