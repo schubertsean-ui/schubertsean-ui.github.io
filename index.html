@@ -17,29 +17,21 @@
     .chips button { font-family: "IBM Plex Mono", monospace; font-size: .55rem; letter-spacing: .08em; text-transform: uppercase; background: transparent; color: var(--muted); border: 1px solid #c4a57433; padding: .35rem .5rem; }
     .chips button.on { color: var(--paper); border-color: var(--gold); }
     .crate { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 10px; padding: 12px 12px 80px; background: linear-gradient(#3a2a1c,#1a120c); }
-    @media (min-width: 720px) { .crate { grid-template-columns: 1fr 1fr 1fr 1fr; padding: 16px 20px 80px; } }
+    @media (min-width: 720px) { .crate { grid-template-columns: 1fr 1fr 1fr 1fr; } }
     article { background: none; border: 0; color: inherit; text-align: left; padding: 0; width: 100%; cursor: pointer; font: inherit; }
     .art { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #1b140f; box-shadow: 6px 12px 22px #0007; }
-    .blank { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; padding: .7rem; text-align: center; background: #cbb896; color: #3a2a1c; font-style: italic; font-size: .92rem; line-height: 1.2; box-shadow: 6px 12px 22px #0007; }
+    .blank { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; padding: .7rem; text-align: center; background: #cbb896; color: #3a2a1c; font-style: italic; font-size: .92rem; }
     article h2 { margin: .4rem 0 0; font-size: .95rem; font-weight: 500; font-style: italic; }
     article .meta { margin: .1rem 0 0; font-family: "IBM Plex Mono", monospace; font-size: .5rem; color: var(--muted); }
     .stage { position: fixed; inset: 0; background: #0a0705f5; overflow: auto; padding: .8rem; z-index: 20; }
     .stage[hidden] { display: none; }
     .ghost { font-family: "IBM Plex Mono", monospace; font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; background: none; color: var(--gold); border: 1px solid #c4a57455; padding: .4rem .55rem; }
-    .faces { width: min(88vw, 440px); margin: .7rem auto 0; }
-    .faces img { width: 100%; display: block; background: #111; margin-bottom: .45rem; }
+    .faces img { width: min(88vw,440px); display: block; margin: .6rem auto; background: #111; }
     .card { background: #f3ead8; color: var(--ink); max-width: 520px; margin: .8rem auto 2rem; padding: 1.1rem; }
-    .card h2 { margin: 0; font-style: italic; font-weight: 500; }
-    .card .by { margin: .15rem 0 .7rem; color: #5c4a36; }
-    .card dl { display: grid; grid-template-columns: 7rem 1fr; gap: .25rem .6rem; font-size: .95rem; }
-    .card dt { font-family: "IBM Plex Mono", monospace; font-size: .55rem; letter-spacing: .08em; text-transform: uppercase; color: #7a6854; padding-top: .25rem; }
-    .card dd { margin: 0; }
-    .listen { display: flex; flex-direction: column; gap: .35rem; margin-top: .9rem; }
-    .listen a { display: block; text-align: center; text-decoration: none; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; padding: .7rem; }
+    .listen a { display: block; text-align: center; text-decoration: none; font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; padding: .7rem; margin-top: .35rem; }
     .sp { background: #1db954; color: #062; }
     .ap { background: #111; color: #fff; }
-    .tracks { padding-left: 1.1rem; margin: .3rem 0; }
-    .notes { white-space: pre-wrap; font-size: .95rem; }
+    .notes { white-space: pre-wrap; }
   </style>
 </head>
 <body>
@@ -55,86 +47,51 @@
     <div class="faces" id="faces"></div>
     <div class="card" id="card"></div>
   </div>
-  <script src="photos.js"></script>
-  <script src="list.js"></script>
+  <script src="p1.js"></script>
+  <script src="p2.js"></script>
+  <script src="l1.js"></script>
+  <script src="l2.js"></script>
+  <script src="l3.js"></script>
   <script>
-    const PHOTOS = window.PHOTOS || [];
-    const LIST = window.LIST || [];
-    const ALL = PHOTOS.concat(LIST);
+    const ALL = (window.PHOTOS || []).concat(window.LIST || []);
     const bin = document.getElementById("bin");
     const q = document.getElementById("q");
     const chips = document.getElementById("chips");
     const count = document.getElementById("count");
     const stage = document.getElementById("stage");
-    const faces = document.getElementById("faces");
-    const card = document.getElementById("card");
     let crate = "all";
-    function keyOf(a) {
-      return ((a.artist || a.title || a.raw || "") + " " + (a.title || "")).toLowerCase();
-    }
-    function hay(a) {
-      return [a.artist, a.title, a.label, a.catalog, a.year, a.format, a.speed, a.notes, a.raw,
-        ...(a.genre || []), ...((a.tracks || []).map(t => t.title || ""))].filter(Boolean).join(" ").toLowerCase();
-    }
-    function esc(s) {
-      return String(s || "").replace(/[&<>"]/g, c => ({ "&": "&", "<": "<", ">": ">", '"': """ }[c]));
-    }
-    function queryFor(a) {
-      return encodeURIComponent([a.artist, a.title].filter(Boolean).join(" ") || a.raw || "");
-    }
-    function drawChips() {
-      chips.innerHTML = "";
-      [["all", "All"], ["photo", "Jackets"], ["list", "Written list"]].forEach(([id, label]) => {
-        const b = document.createElement("button");
-        b.textContent = label;
-        b.className = crate === id ? "on" : "";
-        b.onclick = () => { crate = id; draw(); };
-        chips.appendChild(b);
-      });
-    }
-    function shown() {
-      const t = q.value.trim().toLowerCase();
-      return ALL.filter(a => {
-        if (crate === "photo" && !a.front) return false;
-        if (crate === "list" && a.front) return false;
-        if (!t) return true;
-        return t.split(/\s+/).every(w => hay(a).includes(w));
-      }).sort((x, y) => keyOf(x).localeCompare(keyOf(y)));
-    }
+    function keyOf(a) { return ((a.artist || a.title || a.raw || "") + " " + (a.title || "")).toLowerCase(); }
+    function hay(a) { return [a.artist,a.title,a.label,a.catalog,a.year,a.speed,a.notes,a.raw,...(a.genre||[])].filter(Boolean).join(" ").toLowerCase(); }
+    function esc(s) { return String(s||"").replace(/[&<>"]/g,c=>({"&":"&","<":"<",">":">",'"':"""}[c])); }
+    function qf(a) { return encodeURIComponent([a.artist,a.title].filter(Boolean).join(" ")||a.raw||""); }
     function draw() {
-      drawChips();
-      const rows = shown();
-      count.textContent = rows.length + " in the crate · " + rows.filter(a => a.front).length + " with jackets";
-      bin.innerHTML = "";
-      rows.forEach(a => {
-        const el = document.createElement("article");
-        const art = a.front
-          ? `<img class="art" src="${esc(a.front)}" alt="" loading="lazy">`
-          : `<div class="blank">${esc((a.title || a.raw || "?").slice(0, 80))}</div>`;
-        el.innerHTML = `${art}<h2>${esc(a.artist || a.title || "Untitled")}</h2><p class="meta">${esc([a.artist && a.title !== a.artist ? a.title : "", a.year, a.label].filter(Boolean).join(" · "))}</p>`;
-        el.onclick = () => open(a);
-        bin.appendChild(el);
+      chips.innerHTML = "";
+      [["all","All"],["photo","Jackets"],["list","Written list"]].forEach(([id,label])=>{
+        const b=document.createElement("button"); b.textContent=label; b.className=crate===id?"on":"";
+        b.onclick=()=>{crate=id;draw()}; chips.appendChild(b);
+      });
+      const t=q.value.trim().toLowerCase();
+      const rows=ALL.filter(a=>{
+        if(crate==="photo"&&!a.front)return false;
+        if(crate==="list"&&a.front)return false;
+        if(!t)return true;
+        return t.split(/\s+/).every(w=>hay(a).includes(w));
+      }).sort((x,y)=>keyOf(x).localeCompare(keyOf(y)));
+      count.textContent=rows.length+" in the crate · "+rows.filter(a=>a.front).length+" with jackets";
+      bin.innerHTML="";
+      rows.forEach(a=>{
+        const el=document.createElement("article");
+        el.innerHTML=(a.front?`<img class="art" src="${esc(a.front)}" alt="" loading="lazy">`:`<div class="blank">${esc((a.title||a.raw||"?").slice(0,80))}</div>`)+`<h2>${esc(a.artist||a.title||"Untitled")}</h2><p class="meta">${esc([a.artist&&a.title!==a.artist?a.title:"",a.year,a.label].filter(Boolean).join(" · "))}</p>`;
+        el.onclick=()=>open(a); bin.appendChild(el);
       });
     }
-    function row(dt, dd) {
-      if (!dd || (Array.isArray(dd) && !dd.length)) return "";
-      return `<dt>${esc(dt)}</dt><dd>${esc(Array.isArray(dd) ? dd.join(", ") : dd)}</dd>`;
+    function open(a){
+      document.getElementById("faces").innerHTML=[a.front,a.back,a.inner].filter(Boolean).map(s=>`<img src="${esc(s)}" alt="">`).join("");
+      document.getElementById("card").innerHTML=`<h2>${esc(a.title||"")}</h2><p>${esc(a.artist||"")}</p><p>${esc([a.year,a.label,a.catalog,a.speed,(a.genre||[]).join(", ")].filter(Boolean).join(" · "))}</p>${a.notes||a.raw?`<div class="notes">${esc(a.notes||a.raw)}</div>`:""}<a class="listen sp" href="https://open.spotify.com/search/${qf(a)}" target="_blank" rel="noopener">Listen on Spotify</a><a class="listen ap" href="https://music.apple.com/us/search?term=${qf(a)}" target="_blank" rel="noopener">Listen on Apple Music</a>`;
+      stage.hidden=false; document.body.style.overflow="hidden";
     }
-    function open(a) {
-      const imgs = [a.front, a.back, a.inner].filter(Boolean);
-      faces.innerHTML = imgs.map(src => `<img src="${esc(src)}" alt="">`).join("");
-      const tracks = (a.tracks || []).map(t => `<li>${esc([t.side, t.title].filter(Boolean).join(" — "))}</li>`).join("");
-      const sp = "https://open.spotify.com/search/" + queryFor(a);
-      const ap = "https://music.apple.com/us/search?term=" + queryFor(a);
-      card.innerHTML = `<h2>${esc(a.title || "")}</h2><p class="by">${esc(a.artist || "")}</p>
-        <dl>${row("Issued", a.year)}${row("Label", [a.label, a.catalog].filter(Boolean).join(" · "))}${row("Speed", a.speed)}${row("Genre", a.genre)}</dl>
-        ${tracks ? "<h3>Sides</h3><ol class='tracks'>" + tracks + "</ol>" : ""}
-        ${a.notes || a.raw ? "<h3>From the list</h3><div class='notes'>" + esc(a.notes || a.raw) + "</div>" : ""}
-        <div class="listen"><a class="sp" href="${sp}" target="_blank" rel="noopener">Listen on Spotify</a><a class="ap" href="${ap}" target="_blank" rel="noopener">Listen on Apple Music</a></div>`;
-      stage.hidden = false; document.body.style.overflow = "hidden"; stage.scrollTop = 0;
-    }
-    document.getElementById("close").onclick = () => { stage.hidden = true; document.body.style.overflow = ""; };
-    q.addEventListener("input", draw);
+    document.getElementById("close").onclick=()=>{stage.hidden=true;document.body.style.overflow="";};
+    q.addEventListener("input",draw);
     draw();
   </script>
 </body>
